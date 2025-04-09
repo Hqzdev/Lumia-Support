@@ -13,6 +13,7 @@ import EmojiPicker from "@/components/emoji-picker"
 import TypingIndicator from "@/components/typing-indicator"
 import { generateAIResponse } from "@/lib/ai-response"
 import type { Message, SupportTopic } from "@/lib/types"
+import Link from "next/link"
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([
@@ -243,14 +244,18 @@ export default function Home() {
             </div>
           </div>
           <div className="hidden md:flex items-center gap-4">
-            <Button variant="ghost" size="sm">
-              Documentation
+          <Button className="text-gray-600" size="sm" asChild>
+              <Link href="https://luren-documentation.vercel.app">
+                Documentation
+              </Link>
             </Button>
             <Button variant="ghost" size="sm">
               FAQ
             </Button>
-            <Button className="bg-blue-600 hover:bg-blue-700" size="sm">
-              Contact Sales
+            <Button className="bg-blue-600 hover:bg-blue-700" size="sm" asChild>
+              <Link href="https://luren-documentation.vercel.app/pricing">
+                Pricing
+              </Link>
             </Button>
           </div>
           <Button
@@ -273,15 +278,19 @@ export default function Home() {
               className="md:hidden border-t border-gray-200 overflow-hidden"
             >
               <div className="container mx-auto px-4 py-3 flex flex-col gap-2">
-                <Button variant="ghost" size="sm" className="justify-start">
-                  Documentation
-                </Button>
+              <Button className="text-gray-600" size="sm" asChild>
+              <Link href="https://luren-documentation.vercel.app">
+                Documentation
+              </Link>
+            </Button>
                 <Button variant="ghost" size="sm" className="justify-start">
                   FAQ
                 </Button>
-                <Button className="bg-blue-600 hover:bg-blue-700" size="sm">
-                  Contact Sales
-                </Button>
+                <Button className="bg-blue-600 hover:bg-blue-700" size="sm" asChild>
+              <Link href="https://luren-documentation.vercel.app/pricing">
+                Pricing
+              </Link>
+            </Button>
               </div>
             </motion.div>
           )}
