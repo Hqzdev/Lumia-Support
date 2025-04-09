@@ -11,8 +11,8 @@ import ChatMessage from "@/components/chat-message"
 import SupportOptions from "@/components/support-options"
 import EmojiPicker from "@/components/emoji-picker"
 import TypingIndicator from "@/components/typing-indicator"
-import { generateAIResponse } from "@/lib/ai-response"
-import type { Message, SupportTopic } from "@/lib/types"
+import { generateAIResponse } from "@/lib/ai-service"
+import type { Message, SupportTopic, ConversationMessage } from "@/lib/types"
 import Link from "next/link"
 import FloatingElements from "@/components/floating-elements"
 import AnimatedGradient from "@/components/animated-gradient"
@@ -86,10 +86,9 @@ export default function Home() {
     // Show typing indicator
     setIsAITyping(true)
 
-    // Generate AI response with a realistic delay
     try {
       // Get conversation history for context
-      const conversationHistory = messages.map((msg) => ({
+      const conversationHistory: ConversationMessage[] = messages.map((msg) => ({
         role: msg.sender === "user" ? "user" : "assistant",
         content: msg.content,
       }))
@@ -100,11 +99,7 @@ export default function Home() {
         content: input,
       })
 
-      // Simulate AI thinking time (would be replaced with actual API call)
-      const responseDelay = Math.floor(Math.random() * 1000) + 1000 // 1-2 seconds
-      await new Promise((resolve) => setTimeout(resolve, responseDelay))
-
-      // Generate response based on the conversation
+      // Generate response using OpenRouter
       const aiResponse = await generateAIResponse(input, conversationHistory)
 
       // Add AI response
@@ -143,61 +138,25 @@ export default function Home() {
     setIsAITyping(true)
 
     try {
-      // Simulate AI thinking time
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      // Get conversation history for context
+      const conversationHistory: ConversationMessage[] = messages.map((msg) => ({
+        role: msg.sender === "user" ? "user" : "assistant",
+        content: msg.content,
+      }))
 
-      // Generate response based on the topic
-      let response = ""
+      // Add the new user message
+      conversationHistory.push({
+        role: "user",
+        content: `I need help with ${topic.title}`,
+      })
 
-      switch (topic.id) {
-        case "getting-started":
-          response =
-            "Welcome to Lumia AI! Getting started is easy. Here's how to begin:\n\n" +
-            "1️⃣ Create your account at app.lumiaai.com\n" +
-            "2️⃣ Choose a subscription plan that fits your needs\n" +
-            "3️⃣ Complete the onboarding tutorial\n" +
-            "4️⃣ Start exploring our AI tools\n\n" +
-            "Would you like me to guide you through the account creation process? Or do you have specific questions about getting started? 🚀"
-          break
-
-        case "ai-features":
-          response =
-            "Lumia AI offers a wide range of powerful AI features:\n\n" +
-            "🔹 **Natural Language Processing**: Generate text, summarize content, and translate languages\n" +
-            "🔹 **Image Generation**: Create custom images from text descriptions\n" +
-            "🔹 **Voice Synthesis**: Convert text to natural-sounding speech\n" +
-            "🔹 **Data Analysis**: Extract insights from your data automatically\n\n" +
-            "Which specific AI feature would you like to learn more about? 🧠"
-          break
-
-        case "models":
-          response =
-            "Lumia AI uses several cutting-edge AI models:\n\n" +
-            "🔸 **Lumia-GPT**: Our proprietary language model for text generation\n" +
-            "🔸 **Lumia-Vision**: Image recognition and generation model\n" +
-            "🔸 **Lumia-Voice**: Speech synthesis and recognition model\n\n" +
-            "You can customize these models with your own data for better results. Would you like to learn about model customization or have questions about a specific model? ⚙️"
-          break
-
-        case "troubleshooting":
-          response =
-            "I'm sorry you're experiencing issues with Lumia AI. Let's troubleshoot together.\n\n" +
-            "Common AI-related issues include:\n" +
-            "❓ Inaccurate or unexpected AI outputs\n" +
-            "❓ Slow response times\n" +
-            "❓ Model training problems\n" +
-            "❓ API integration errors\n\n" +
-            "Could you please describe the specific issue you're facing with our AI tools? The more details you provide, the better I can help you. 🔧"
-          break
-
-        default:
-          response = "How can I help you with this topic?"
-      }
+      // Generate response using OpenRouter
+      const aiResponse = await generateAIResponse(`I need help with ${topic.title}`, conversationHistory)
 
       // Add AI response
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: response,
+        content: aiResponse,
         sender: "bot",
         timestamp: new Date(),
       }

@@ -12,7 +12,9 @@ export interface SupportTopic {
   icon: string
 }
 
+export type ConversationRole = "user" | "assistant" | "system"
+
 export interface ConversationMessage {
-  role: "user" | "assistant" | "system"
+  role: ConversationRole
   content: string
 }
