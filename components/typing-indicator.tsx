@@ -12,11 +12,6 @@ export default function TypingIndicator() {
       exit={{ opacity: 0 }}
       className="flex gap-3 mb-4"
     >
-      <div className="flex-shrink-0">
-        <Avatar className="h-8 w-8 bg-blue-100 border-2 border-blue-200">
-          <Bot className="h-4 w-4 text-blue-600" />
-        </Avatar>
-      </div>
       <div className="max-w-[80%]">
         <div className="rounded-2xl border-2 border-gray-200 p-3 bg-white">
           <div className="flex space-x-1 items-center h-5">

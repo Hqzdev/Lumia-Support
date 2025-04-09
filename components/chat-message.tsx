@@ -32,13 +32,6 @@ export default function ChatMessage({ message, index }: ChatMessageProps) {
       transition={{ delay: index * 0.1 }}
       className={`flex gap-3 mb-4 ${isUser ? "justify-end" : ""}`}
     >
-      {!isUser && (
-        <div className="flex-shrink-0">
-          <Avatar className="h-8 w-8 bg-blue-100 border-2 border-blue-200">
-            <Bot className="h-4 w-4 text-blue-600" />
-          </Avatar>
-        </div>
-      )}
       <div className={`max-w-[80%] ${isUser ? "order-1" : "order-2"}`}>
         <div className={`rounded-2xl border-2 border-gray-200 p-3 ${isUser ? "bg-blue-600 text-white" : "bg-white"}`}>
           <p className="text-sm" dangerouslySetInnerHTML={{ __html: formatContent(message.content) }} />
@@ -47,13 +40,6 @@ export default function ChatMessage({ message, index }: ChatMessageProps) {
           {formatDistanceToNow(message.timestamp, { addSuffix: true })}
         </div>
       </div>
-      {isUser && (
-        <div className="flex-shrink-0">
-          <Avatar className="h-8 w-8 bg-gray-100 border-2 border-gray-200">
-            <User className="h-4 w-4 text-gray-600" />
-          </Avatar>
-        </div>
-      )}
     </motion.div>
   )
 }
