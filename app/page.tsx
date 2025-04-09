@@ -229,7 +229,7 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen bg-white">
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
+      <header className="border-2 bg-muted w-full max-w-[600px] mx-auto rounded-2xl items-center border-gray-200 bg-white mt-3">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
@@ -244,13 +244,15 @@ export default function Home() {
             </div>
           </div>
           <div className="hidden md:flex items-center gap-4">
-          <Button className="text-gray-600" size="sm" asChild>
+            <Button className="bg-white text-black hover:bg-gray-100" size="sm" asChild>
               <Link href="https://luren-documentation.vercel.app">
                 Documentation
               </Link>
             </Button>
-            <Button variant="ghost" size="sm">
-              FAQ
+            <Button className="bg-white text-black hover:bg-gray-100" size="sm" asChild>
+              <Link href="https://luren.vercel.app/faq">
+                FAQ
+              </Link>
             </Button>
             <Button className="bg-blue-600 hover:bg-blue-700" size="sm" asChild>
               <Link href="https://luren-documentation.vercel.app/pricing">
@@ -278,19 +280,21 @@ export default function Home() {
               className="md:hidden border-t border-gray-200 overflow-hidden"
             >
               <div className="container mx-auto px-4 py-3 flex flex-col gap-2">
-              <Button className="text-gray-600" size="sm" asChild>
-              <Link href="https://luren-documentation.vercel.app">
-                Documentation
-              </Link>
-            </Button>
-                <Button variant="ghost" size="sm" className="justify-start">
-                  FAQ
+                <Button className="bg-white text-black hover:bg-gray-100" size="sm" asChild>
+                  <Link href="https://luren-documentation.vercel.app">
+                    Documentation
+                  </Link>
                 </Button>
-                <Button className="bg-blue-600 hover:bg-blue-700" size="sm" asChild>
-              <Link href="https://luren-documentation.vercel.app/pricing">
-                Pricing
+                <Button className="bg-white text-black hover:bg-gray-100" size="sm" asChild>
+              <Link href="https://luren.vercel.app/faq">
+                FAQ
               </Link>
             </Button>
+                <Button className="bg-blue-600 hover:bg-blue-700" size="sm" asChild>
+                  <Link href="https://luren-documentation.vercel.app/pricing">
+                    Pricing
+                  </Link>
+                </Button>
               </div>
             </motion.div>
           )}
