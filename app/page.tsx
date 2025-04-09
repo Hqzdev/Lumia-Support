@@ -14,6 +14,8 @@ import TypingIndicator from "@/components/typing-indicator"
 import { generateAIResponse } from "@/lib/ai-response"
 import type { Message, SupportTopic } from "@/lib/types"
 import Link from "next/link"
+import FloatingElements from "@/components/floating-elements"
+import AnimatedGradient from "@/components/animated-gradient"
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([
@@ -228,6 +230,8 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen bg-white">
+      <FloatingElements />
+      <AnimatedGradient />
       {/* Header */}
       <header className="border-2 bg-muted w-full max-w-[600px] mx-auto rounded-2xl items-center border-gray-200 bg-white mt-3">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
