@@ -1,0 +1,24 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Log {
+  id        String   @id @default(cuid())
+  type      String   // CHAT_MESSAGE, AI_RESPONSE, PAGE_VIEW, etc.
+  data      Json     // Flexible JSON data structure for different log types
+  timestamp DateTime @default(now())
+  sessionId String   // To group logs by session
+  userId    String?  // Optional user ID for authenticated users
+
+  @@index([sessionId])
+  @@index([type])
+  @@index([timestamp])
+} 

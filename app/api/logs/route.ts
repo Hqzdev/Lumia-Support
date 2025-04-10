@@ -1,53 +1,62 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs/promises'
-import path from 'path'
+import { PrismaClient } from '@prisma/client'
+import type { LogEvent } from '@/lib/types'
 
-const logFilePath = path.join(process.cwd(), 'logs', 'chat.log')
+const prisma = new PrismaClient()
 
-// Инициализация файла логов
-async function initLogFile() {
-  try {
-    await fs.mkdir(path.join(process.cwd(), 'logs'), { recursive: true })
-    try {
-      await fs.access(logFilePath)
-    } catch {
-      await fs.writeFile(logFilePath, '[]')
-    }
-  } catch (error) {
-    console.error('Error initializing log file:', error)
-  }
-}
-
-// Убедимся, что файл существует
-initLogFile()
-
-export async function GET() {
-  try {
-    const logsContent = await fs.readFile(logFilePath, 'utf-8')
-    return NextResponse.json(JSON.parse(logsContent))
-  } catch (error) {
-    console.error('Error reading logs:', error)
-    return NextResponse.json([], { status: 500 })
-  }
-}
-
+// POST /api/logs - Create a new log entry
 export async function POST(request: Request) {
   try {
-    const event = await request.json()
+    const log: LogEvent = await request.json()
     
-    // Читаем существующие логи
-    const logsContent = await fs.readFile(logFilePath, 'utf-8')
-    const logs = JSON.parse(logsContent)
+    const savedLog = await prisma.log.create({
+      data: {
+        type: log.type,
+        data: log.data,
+        sessionId: log.sessionId,
+        timestamp: log.timestamp,
+      },
+    })
 
-    // Добавляем новый лог
-    logs.push(event)
-
-    // Сохраняем обновленные логи
-    await fs.writeFile(logFilePath, JSON.stringify(logs, null, 2))
-
-    return NextResponse.json({ success: true })
+    return NextResponse.json(savedLog)
   } catch (error) {
     console.error('Error saving log:', error)
-    return NextResponse.json({ success: false }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to save log' },
+      { status: 500 }
+    )
+  }
+}
+
+// GET /api/logs - Retrieve logs with optional filtering
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const sessionId = searchParams.get('sessionId')
+    const type = searchParams.get('type')
+    const limit = parseInt(searchParams.get('limit') || '100')
+    const offset = parseInt(searchParams.get('offset') || '0')
+
+    const where = {
+      ...(sessionId && { sessionId }),
+      ...(type && { type }),
+    }
+
+    const logs = await prisma.log.findMany({
+      where,
+      orderBy: {
+        timestamp: 'desc',
+      },
+      take: limit,
+      skip: offset,
+    })
+
+    return NextResponse.json(logs)
+  } catch (error) {
+    console.error('Error retrieving logs:', error)
+    return NextResponse.json(
+      { error: 'Failed to retrieve logs' },
+      { status: 500 }
+    )
   }
 } 
