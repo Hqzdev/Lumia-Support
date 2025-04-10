@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
-import { Send, Paperclip, Smile, ChevronDown, X, Menu } from "lucide-react"
+import { Send, Paperclip, Smile, ChevronDown, X, Menu, Terminal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { motion, AnimatePresence } from "framer-motion"
@@ -16,6 +16,8 @@ import type { Message, SupportTopic, ConversationMessage } from "@/lib/types"
 import Link from "next/link"
 import FloatingElements from "@/components/floating-elements"
 import AnimatedGradient from "@/components/animated-gradient"
+import { logger } from "@/lib/logger"
+import { LogConsole } from "@/components/log-console"
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([
@@ -33,6 +35,7 @@ export default function Home() {
   const [isAITyping, setIsAITyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const [isLogConsoleOpen, setIsLogConsoleOpen] = useState(false)
 
   const supportTopics: SupportTopic[] = [
     {
@@ -63,6 +66,7 @@ export default function Home() {
 
   useEffect(() => {
     scrollToBottom()
+    logger.logPageView("/")
   }, [messages, isAITyping])
 
   const scrollToBottom = () => {
@@ -72,6 +76,9 @@ export default function Home() {
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim()) return
+
+    // Log user message
+    await logger.logChatMessage(input)
 
     // Add user message
     const userMessage: Message = {
@@ -101,6 +108,9 @@ export default function Home() {
 
       // Generate response using OpenRouter
       const aiResponse = await generateAIResponse(input, conversationHistory)
+      
+      // Log AI response
+      await logger.logAIResponse(aiResponse)
 
       // Add AI response
       const botMessage: Message = {
@@ -111,6 +121,9 @@ export default function Home() {
       }
       setMessages((prev) => [...prev, botMessage])
     } catch (error) {
+      // Log error
+      await logger.logError(error instanceof Error ? error.message : "Unknown error")
+
       // Handle error
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -125,6 +138,9 @@ export default function Home() {
   }
 
   const handleTopicSelect = async (topic: SupportTopic) => {
+    // Log topic selection
+    await logger.logTopicSelect(topic.title)
+
     // Add user message showing the selected topic
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -152,6 +168,9 @@ export default function Home() {
 
       // Generate response using OpenRouter
       const aiResponse = await generateAIResponse(`I need help with ${topic.title}`, conversationHistory)
+      
+      // Log AI response
+      await logger.logAIResponse(aiResponse)
 
       // Add AI response
       const botMessage: Message = {
@@ -162,6 +181,9 @@ export default function Home() {
       }
       setMessages((prev) => [...prev, botMessage])
     } catch (error) {
+      // Log error
+      await logger.logError(error instanceof Error ? error.message : "Unknown error")
+
       // Handle error
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -185,6 +207,12 @@ export default function Home() {
 
   const toggleEmojiPicker = () => {
     setIsEmojiPickerOpen(!isEmojiPickerOpen)
+    logger.logButtonClick("emoji-picker", isEmojiPickerOpen ? "close" : "open")
+  }
+
+  // Add logging to navigation buttons
+  const handleNavigation = (target: string) => {
+    logger.logNavigation(target)
   }
 
   return (
@@ -208,17 +236,17 @@ export default function Home() {
           </div>
           <div className="hidden md:flex items-center gap-4">
             <Button className="bg-white text-black hover:bg-gray-100" size="sm" asChild>
-              <Link href="https://luren-documentation.vercel.app">
+              <Link href="https://luren-documentation.vercel.app" onClick={() => handleNavigation("documentation")}>
                 Documentation
               </Link>
             </Button>
             <Button className="bg-white text-black hover:bg-gray-100" size="sm" asChild>
-              <Link href="https://luren.vercel.app/faq">
+              <Link href="https://luren.vercel.app/faq" onClick={() => handleNavigation("faq")}>
                 FAQ
               </Link>
             </Button>
             <Button className="bg-blue-600 hover:bg-blue-700" size="sm" asChild>
-              <Link href="https://luren-documentation.vercel.app/pricing">
+              <Link href="https://luren-documentation.vercel.app/pricing" onClick={() => handleNavigation("pricing")}>
                 Pricing
               </Link>
             </Button>
@@ -244,17 +272,17 @@ export default function Home() {
             >
               <div className="container mx-auto px-4 py-3 flex flex-col gap-2">
                 <Button className="bg-white text-black hover:bg-gray-100" size="sm" asChild>
-                  <Link href="https://luren-documentation.vercel.app">
+                  <Link href="https://luren-documentation.vercel.app" onClick={() => handleNavigation("documentation")}>
                     Documentation
                   </Link>
                 </Button>
                 <Button className="bg-white text-black hover:bg-gray-100" size="sm" asChild>
-              <Link href="https://luren.vercel.app/faq">
-                FAQ
-              </Link>
-            </Button>
+                  <Link href="https://luren.vercel.app/faq" onClick={() => handleNavigation("faq")}>
+                    FAQ
+                  </Link>
+                </Button>
                 <Button className="bg-blue-600 hover:bg-blue-700" size="sm" asChild>
-                  <Link href="https://luren-documentation.vercel.app/pricing">
+                  <Link href="https://luren-documentation.vercel.app/pricing" onClick={() => handleNavigation("pricing")}>
                     Pricing
                   </Link>
                 </Button>
@@ -301,7 +329,7 @@ export default function Home() {
         <div className="border-t border-gray-200 bg-white p-4">
           <div className="max-w-3xl mx-auto">
             <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-              <Button type="button" variant="ghost" size="icon" className="text-gray-500 hover:text-blue-600">
+              <Button type="button" variant="ghost" size="icon" className="text-gray-500 hover:text-blue-600" onClick={() => logger.logButtonClick("attachment", "open")}>
                 <Paperclip className="h-5 w-5" />
               </Button>
               <div className="flex-1 relative">
@@ -340,6 +368,7 @@ export default function Home() {
                 className="bg-blue-600 hover:bg-blue-700 rounded-full"
                 size="icon"
                 disabled={!input.trim() || isAITyping}
+                onClick={() => logger.logButtonClick("send", "submit")}
               >
                 <Send className="h-5 w-5" />
               </Button>
@@ -368,6 +397,21 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Log Console Toggle Button */}
+      <Button
+        variant="outline"
+        size="icon"
+        className="fixed bottom-4 left-4 bg-white shadow-lg"
+        onClick={() => setIsLogConsoleOpen(!isLogConsoleOpen)}
+      >
+        <Terminal className="h-4 w-4" />
+      </Button>
+
+      {/* Log Console */}
+      {isLogConsoleOpen && (
+        <LogConsole />
+      )}
     </div>
   )
 }
